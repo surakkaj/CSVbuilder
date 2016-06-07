@@ -45,38 +45,4 @@ public class TiedostoIO {
         }
     }
 
-    public static String lueTiedostoa(String polku) {
-        String palautus = "";
-
-        FileReader fLukija = null;
-        BufferedReader bLukija = null;
-        try {
-
-            fLukija = new FileReader(polku);
-            bLukija = new BufferedReader(fLukija);
-
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        try {
-            String rivi = bLukija.readLine();
-            StringBuilder sb = new StringBuilder("");
-            while (rivi != null) {
-                sb.append(rivi);
-                rivi = bLukija.readLine();
-            }
-            palautus = sb.toString();
-
-        } catch (Exception e) {
-            return "No file found" + e.getMessage();
-        }
-        try {
-            bLukija.close();
-            fLukija.close();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return palautus;
-    }
-
 }
