@@ -1,1 +1,1 @@
-<a href="3d55cbfc.png">titteli</a>
+<img href="3d55cbfc.png">titteli</img>
