@@ -54,7 +54,7 @@ public class KuittiGeneraattori {
         palautus.put(11, "(?<=PaymentOverDueFinePercent>)([^<]+)");
         palautus.put(12, "(?<=InvoiceDate )([^<]+)");
         palautus.put(16, "(?=<BuyerOrganisationName>)(.+?)(</CountryCode>)");
-        palautus.put(17, "(?<=<DeliveryOrganisationName>)(.+?)(</CountryCode>)");
+        palautus.put(17, "(?=<DeliveryOrganisationName>)(.+?)(</CountryCode>)");
         palautus.put(18, "(?<=InvoiceFreeText>)([^<]+)");
         return palautus;
     }
@@ -110,20 +110,21 @@ public class KuittiGeneraattori {
     }
 
     private static String osoitteistoHalkoja(String data) {
+        System.out.println(data);
         try {
             String nimi, tarkenne, katuosoite, postinumero, kaupunki, maakoodi;
             tarkenne = "";
-            if (data.contains("BAABAA")) {
+            if (data.contains("Tähän tarkenteen xml tagit")) {
                 tarkenne = regexHalkoja("", data)[0] + "\\";
             }
-            nimi = regexHalkoja("OrganisationName>(.+?)<.?OrganisationName", data)[0] + "\\";
-            katuosoite = regexHalkoja("StreetName>(.+?)<.?StreetName", data)[0] + "\\";
-            postinumero = regexHalkoja("PostCodeIdentifier>(.+?)<.?PostCodeIdentifier", data)[0] + "\\";
-            kaupunki = regexHalkoja("TownName>(.+?)<.?TownName", data)[0] + "\\";
-            maakoodi = regexHalkoja("CountryCode>(.+?)<.?CountryCode", data)[0];
+            nimi = regexHalkoja("(?<=OrganisationName>)([^<]+)", data)[0] + "\\";
+            katuosoite = regexHalkoja("(?<=StreetName>)([^<]+)", data)[0] + "\\";
+            postinumero = regexHalkoja("(?<=PostCodeIdentifier>)([^<]+)", data)[0] + "\\";
+            kaupunki = regexHalkoja("(?<=TownName>)([^<]+)", data)[0] + "\\";
+            maakoodi = regexHalkoja("(?<=CountryCode>)([^<]+)", data)[0];
             return nimi + tarkenne + katuosoite + postinumero + kaupunki + maakoodi;
         } catch (ArrayIndexOutOfBoundsException e) {
-
+            e.printStackTrace();
             return data.replaceAll("<.*?>", "/").replaceAll("/\\W*/", "/");
         }
 

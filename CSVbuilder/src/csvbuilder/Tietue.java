@@ -43,7 +43,9 @@ public abstract class Tietue {
             }
             ret.append(t + ";");
         }
-        ret.append(System.lineSeparator());
-        return ret.toString();
+        
+        String toReturn = ret.toString().replaceAll("(;+)$", ";");
+        
+        return toReturn + System.lineSeparator();
     }
 }
