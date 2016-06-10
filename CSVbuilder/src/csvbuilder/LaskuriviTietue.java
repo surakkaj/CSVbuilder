@@ -12,7 +12,7 @@ package csvbuilder;
 public class LaskuriviTietue extends Tietue {
 
     public LaskuriviTietue() {
-        this.tietueet = new String[16];
+        this.tietueet = new String[17];
     }
     /**
      * 

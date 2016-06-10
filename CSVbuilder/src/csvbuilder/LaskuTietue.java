@@ -11,25 +11,28 @@ package csvbuilder;
  */
 public class LaskuTietue extends Tietue {
     public LaskuTietue(){
-        this.tietueet = new String[46];
+        this.tietueet = new String[47];
+        tietueet[1] = "EUR";
+        tietueet[25] = "2";
     }
     
     /**
      * 
      * @param i
-     * 1  Laskutyyppi
-     * 2  Valuuttakoodi
-     * 3  Viitenumero
-     * 4  Pankkitili
-     * 5  Y-tunnus/HETU/ALV
-     * 6  Maksutapa
-     * 7  Liikekumppanin nimi
-     * 8  Toimitustapa
-     * 9  Laskun ale
-     * 10 Sis.alv koodi tf
-     * 11 Hyvityslaskukoodi
-     * 12 Viivästyskorko
-     * 13 Laskun päivämäärä
+     * 0  Laskutyyppi
+     * 1  Valuuttakoodi
+     * 2  Viitenumero
+     * 3  Pankkitili
+     * 4  Y-tunnus/HETU/ALV
+     * 5  Maksutapa
+     * 6  Liikekumppanin nimi
+     * 7  Toimitustapa
+     * 8  Laskun ale
+     * 9  Sis.alv koodi tf
+     * 10 Hyvityslaskukoodi
+     * 11 Viivästyskorko
+     * 12 Laskun päivämäärä
+     * 13 ToimitusPäivämäärä
      * 14 Eräpäivämäärä
      * 15 Liikekumppanin osoite
      * 16 Laskutusosoite

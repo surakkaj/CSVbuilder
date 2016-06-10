@@ -32,7 +32,7 @@ public class KuittiGeneraattori {
         return this.finvoiceData;
     }
 
-    public static HashMap<Integer, String> getRivitietueRegexArray() {
+    private static HashMap<Integer, String> getRivitietueRegexArray() {
         HashMap<Integer, String> palautus = new HashMap<>();
         palautus.put(1, "(?<=ArticleName>)([^<]+)");
         palautus.put(2, "(?<=ArticleIdentifier>)([^<]+)");
@@ -44,16 +44,17 @@ public class KuittiGeneraattori {
         return palautus;
     }
 
-    public static HashMap<Integer, String> getTietueRegexArray() {
+    private static HashMap<Integer, String> getTietueRegexArray() {
 
         HashMap<Integer, String> palautus = new HashMap<>();
+        palautus.put(0, "(?<=InvoiceTypeCode )([^<]+)");
         palautus.put(1, "(?<=AmountCurrencyIdentifier=\")([^\"]+)");
         palautus.put(4, "(?<=BuyerPartyIdentifier>)([^<]+)");
         palautus.put(6, "(?<=BuyerOrganisationName>)([^<]+)");
         palautus.put(11, "(?<=PaymentOverDueFinePercent>)([^<]+)");
         palautus.put(12, "(?<=InvoiceDate )([^<]+)");
-        palautus.put(16, "(?<=BuyerOrganisationName>)");
-        palautus.put(17, "(?<=DeliveryPostalAddressDetails> )([.]+)");
+        palautus.put(16, "(?<=<BuyerOrganisationName>)(.+?)(?=</CountryCode>)");
+        palautus.put(17, "(?<=<DeliveryOrganisationName>)(.+?)(?=</CountryCode>)");
         palautus.put(18, "(?<=InvoiceFreeText>)([^<]+)");
         return palautus;
     }
@@ -62,8 +63,11 @@ public class KuittiGeneraattori {
         LaskuTietue tietue = new LaskuTietue();
         for (int i : this.laskuTietueRegex.keySet()) {
 
-            if (regexHalkoja(laskuTietueRegex.get(i), data).length != 0) {
-                tietue.set(i, regexHalkoja(laskuTietueRegex.get(i), data)[0]/*.replaceAll(".*?>", "")*/);
+            if (regexHalkoja(laskuTietueRegex.get(i), data).length != 0 && i != 17 && i != 16) {
+                tietue.set(i, regexHalkoja(laskuTietueRegex.get(i), data)[0].replaceAll(".*?>", ""));
+            } else if (regexHalkoja(laskuTietueRegex.get(i), data).length != 0 && (i == 17 || i == 16)) {
+
+                tietue.set(i, regexHalkoja(laskuTietueRegex.get(i), data)[0].replaceAll(data, data).replaceAll("<.*?>", "/").replaceAll("/\\W*/", "/"));
             } else {
                 tietue.set(i, "");
             }
@@ -88,17 +92,15 @@ public class KuittiGeneraattori {
 
     public Kuitti generoiKuitti() {
         Kuitti kuitti = new Kuitti();
-        System.out.println("1");
         kuitti.addTietue(generoiTiedot(regexHalkoja("<Finvoice(.+?)<InvoiceRow", finvoiceData)[0]));
         for (String s : regexHalkoja("InvoiceRow>(.+?)<.?InvoiceRow", finvoiceData)) {
             kuitti.addTietue(generoiRivi(s));
-            System.out.println(regexHalkoja("InvoiceRow>(.+?)<.?InvoiceRow", finvoiceData)[0]);
         }
         return kuitti;
     }
 
-    public String[] regexHalkoja(String regex, String data) {
-        Pattern pattern = Pattern.compile(regex);
+    private String[] regexHalkoja(String regex, String data) {
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         Matcher matcher = pattern.matcher(data);
         ArrayList<String> lista = new ArrayList<String>();
         while (matcher.find()) {
