@@ -53,8 +53,8 @@ public class KuittiGeneraattori {
         palautus.put(6, "(?<=BuyerOrganisationName>)([^<]+)");
         palautus.put(11, "(?<=PaymentOverDueFinePercent>)([^<]+)");
         palautus.put(12, "(?<=InvoiceDate )([^<]+)");
-        palautus.put(16, "(?<=<BuyerOrganisationName>)(.+?)(?=</CountryCode>)");
-        palautus.put(17, "(?<=<DeliveryOrganisationName>)(.+?)(?=</CountryCode>)");
+        palautus.put(16, "(?=<BuyerOrganisationName>)(.+?)(</CountryCode>)");
+        palautus.put(17, "(?<=<DeliveryOrganisationName>)(.+?)(</CountryCode>)");
         palautus.put(18, "(?<=InvoiceFreeText>)([^<]+)");
         return palautus;
     }
@@ -67,7 +67,7 @@ public class KuittiGeneraattori {
                 tietue.set(i, regexHalkoja(laskuTietueRegex.get(i), data)[0].replaceAll(".*?>", ""));
             } else if (regexHalkoja(laskuTietueRegex.get(i), data).length != 0 && (i == 17 || i == 16)) {
 
-                tietue.set(i, regexHalkoja(laskuTietueRegex.get(i), data)[0].replaceAll(data, data).replaceAll("<.*?>", "/").replaceAll("/\\W*/", "/"));
+                tietue.set(i, osoitteistoHalkoja(regexHalkoja(laskuTietueRegex.get(i), data)[0]));
             } else {
                 tietue.set(i, "");
             }
@@ -99,13 +99,33 @@ public class KuittiGeneraattori {
         return kuitti;
     }
 
-    private String[] regexHalkoja(String regex, String data) {
+    private static String[] regexHalkoja(String regex, String data) {
         Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         Matcher matcher = pattern.matcher(data);
-        ArrayList<String> lista = new ArrayList<String>();
+        ArrayList<String> lista = new ArrayList<>();
         while (matcher.find()) {
             lista.add(matcher.group().trim());
         }
         return lista.toArray(new String[lista.size()]);
+    }
+
+    private static String osoitteistoHalkoja(String data) {
+        try {
+            String nimi, tarkenne, katuosoite, postinumero, kaupunki, maakoodi;
+            tarkenne = "";
+            if (data.contains("BAABAA")) {
+                tarkenne = regexHalkoja("", data)[0] + "\\";
+            }
+            nimi = regexHalkoja("OrganisationName>(.+?)<.?OrganisationName", data)[0] + "\\";
+            katuosoite = regexHalkoja("StreetName>(.+?)<.?StreetName", data)[0] + "\\";
+            postinumero = regexHalkoja("PostCodeIdentifier>(.+?)<.?PostCodeIdentifier", data)[0] + "\\";
+            kaupunki = regexHalkoja("TownName>(.+?)<.?TownName", data)[0] + "\\";
+            maakoodi = regexHalkoja("CountryCode>(.+?)<.?CountryCode", data)[0];
+            return nimi + tarkenne + katuosoite + postinumero + kaupunki + maakoodi;
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+            return data.replaceAll("<.*?>", "/").replaceAll("/\\W*/", "/");
+        }
+
     }
 }
