@@ -63,10 +63,11 @@ public class KuittiGeneraattori {
         LaskuTietue tietue = new LaskuTietue();
         for (int i : this.laskuTietueRegex.keySet()) {
 
-            if (regexHalkoja(laskuTietueRegex.get(i), data).length != 0 && i != 17 && i != 16) {
+            if (regexHalkoja(laskuTietueRegex.get(i), data).length != 0 && i != 17 && i != 16 && i != 12) {
                 tietue.set(i, regexHalkoja(laskuTietueRegex.get(i), data)[0].replaceAll(".*?>", ""));
+            } else if (regexHalkoja(laskuTietueRegex.get(i), data).length != 0 && (i == 12)) {
+                tietue.set(i, pvmHalkoja(regexHalkoja(laskuTietueRegex.get(i), data)[0]));
             } else if (regexHalkoja(laskuTietueRegex.get(i), data).length != 0 && (i == 17 || i == 16)) {
-
                 tietue.set(i, osoitteistoHalkoja(regexHalkoja(laskuTietueRegex.get(i), data)[0]));
             } else {
                 tietue.set(i, "");
@@ -109,8 +110,13 @@ public class KuittiGeneraattori {
         return lista.toArray(new String[lista.size()]);
     }
 
+    /**
+     * @param sisäänluettava rivi metodi yrittää hakea tiedot ja ja järjestää
+     * ne, jos ei onnistu niin metodi vain rikkoo xml tagit ja vaihtaa ne /
+     * merkeiksi.
+     *
+     */
     private static String osoitteistoHalkoja(String data) {
-        System.out.println(data);
         try {
             String nimi, tarkenne, katuosoite, postinumero, kaupunki, maakoodi;
             tarkenne = "";
@@ -124,9 +130,19 @@ public class KuittiGeneraattori {
             maakoodi = regexHalkoja("(?<=CountryCode>)([^<]+)", data)[0];
             return nimi + tarkenne + katuosoite + postinumero + kaupunki + maakoodi;
         } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
             return data.replaceAll("<.*?>", "/").replaceAll("/\\W*/", "/");
         }
 
+    }
+
+    private static String pvmHalkoja(String data) {
+        if (data.contains("CCYYMMDD")) {
+            String toReturn = data.replaceAll(".*?>", "");
+            return toReturn.substring(toReturn.length() - 2, toReturn.length() ) + "."
+                      + toReturn.substring(toReturn.length() - 4, toReturn.length() - 2) + "."
+                      + toReturn.substring(0, toReturn.length() - 4) ;
+        } else {
+            return data.replaceAll(".*?>", "");
+        }
     }
 }
