@@ -6,6 +6,9 @@
 package csvbuilder;
 
 import java.io.IOException;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -14,23 +17,44 @@ import java.io.IOException;
 public class CSVbuilder {
 
     /**
-     * @param args the command line arguments
+     * @param args tiedostopolku joka on ensimmäisenä parametseissä. jos ei
+     * parametrejä kysytään käyttäjältä polkua
      * @throws java.io.IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // TODO code application logic here
+        String syote = "";
+
+        Scanner scan = new Scanner(System.in);
         if (args.length != 0) {
             if (args[0].matches(".*\\.xml")) {
+                syote = args[0];
+            } else {
+                System.out.println("ei xml tiedosto");
 
-                KuittiGeneraattori kg = new KuittiGeneraattori(args[0]);
-
-                TiedostoIO.kirjoitaTiedostoon(kg.generoiKuitti().toCSV(), args[0].replaceAll("xml", "csv"));
             }
         } else {
-            KuittiGeneraattori kg = new KuittiGeneraattori("emls.xml");
-            System.out.println(kg.fvd());
-            System.out.println(kg.generoiKuitti().toCSV());
-            TiedostoIO.kirjoitaTiedostoon(kg.generoiKuitti().toCSV(), "eml.csv");
+            System.out.println("Anna tiedoston nimi: ");
+
+            while (syote.isEmpty()) {
+                syote = scan.nextLine();
+                if (!syote.matches((".*\\.xml"))) {
+                    System.out.println("ei xml tiedosto");
+                    syote = "";
+                }
+            }
+
+            KuittiGeneraattori kg;
+            try {
+                kg = new KuittiGeneraattori(syote);
+
+                System.out.println(kg.fvd());
+                System.out.println(kg.generoiKuitti().toCSV());
+                TiedostoIO.kirjoitaTiedostoon(kg.generoiKuitti().toCSV(), syote.replaceAll("xml", "csv"));
+            } catch (IOException ex) {
+                System.out.println("Tiedostoa ei löydy!");
+            }
+            scan.nextLine();
         }
 
     }

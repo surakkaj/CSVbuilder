@@ -21,7 +21,13 @@ public class KuittiGeneraattori {
     private String finvoiceData;
     private final Map<Integer, String> laskuTietueRegex;
     private final Map<Integer, String> laskuriviTietueRegex;
-
+/**
+ * 
+ * @param polku josta tiedosto tallennetaan
+ * @throws IOException jos tiedostoa ei löydy
+ * metodi lukee TiedostoIO:n avulla tiedoston joka löytyy polun päästä
+ * 
+ */
     public KuittiGeneraattori(String polku) throws IOException {
         this.finvoiceData = TiedostoIO.lueTiedosto(polku);
         this.laskuTietueRegex = getTietueRegexArray();
@@ -59,7 +65,14 @@ public class KuittiGeneraattori {
         return palautus;
     }
 
-    public LaskuTietue generoiTiedot(String data) {
+    /**
+     *
+     * @param data sisäänluettavat rivit käy getTietueRegexArray rakenteen läpi,
+     * jos hakeminen ei onnistui yhdellä säännöllisellä lausekkeella, on tehty
+     * poikkeus jossa ajtetaan data yksilöllisen metodin läpi.
+     * @return LaskuTietueolio jonka generoiKuitti() metodi kasaa kuittiin.
+     */
+    private LaskuTietue generoiTiedot(String data) {
         LaskuTietue tietue = new LaskuTietue();
         for (int i : this.laskuTietueRegex.keySet()) {
 
@@ -77,7 +90,15 @@ public class KuittiGeneraattori {
         return tietue;
     }
 
-    public LaskuriviTietue generoiRivi(String data) {
+    /**
+     *
+     * @param data sisäänluettavat rivit metodi käy getRivitietueRegexArray
+     * rakenteen läpi, ja ajaa yksilölliset säännölliset lausekkeet ottaen
+     * tiedot talteen.
+     *
+     * @return LaskuTietueolio jonka generoiKuitti() metodi kasaa kuittiin.
+     */
+    private LaskuriviTietue generoiRivi(String data) {
         LaskuriviTietue tietue = new LaskuriviTietue();
         for (int i : this.laskuriviTietueRegex.keySet()) {
 
@@ -90,7 +111,11 @@ public class KuittiGeneraattori {
         }
         return tietue;
     }
-
+/**
+ *  metodi etsii finvoicedatasta tietueen laskutustiedot, ja lisää kuittiin kyseisen tietueen.
+ * tämän jälkeen metodi käy jokaisen tuoterivin ja lisää ne kuittiin.
+ * @return finvcoice datasta generoitu kuitti
+ */
     public Kuitti generoiKuitti() {
         Kuitti kuitti = new Kuitti();
         kuitti.addTietue(generoiTiedot(regexHalkoja("<Finvoice(.+?)<InvoiceRow", finvoiceData)[0]));
@@ -99,7 +124,12 @@ public class KuittiGeneraattori {
         }
         return kuitti;
     }
-
+/**
+ * 
+ * @param regex käytettävä säännöllinen lauseke
+ * @param data kohdistetut rivit
+ * @return riviehin kohdistetun säännöllisten lausekkeiden joukko
+ */
     private static String[] regexHalkoja(String regex, String data) {
         Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         Matcher matcher = pattern.matcher(data);
@@ -114,6 +144,7 @@ public class KuittiGeneraattori {
      * @param sisäänluettava rivi metodi yrittää hakea tiedot ja ja järjestää
      * ne, jos ei onnistu niin metodi vain rikkoo xml tagit ja vaihtaa ne /
      * merkeiksi.
+     * @return uudelleenjärjetetty osoitteistoformaattik
      *
      */
     private static String osoitteistoHalkoja(String data) {
@@ -135,12 +166,19 @@ public class KuittiGeneraattori {
 
     }
 
+    /**
+     *
+     * @param data sisäänluettava rivi, muotoa "*formaatti'" >9999999<****>
+     * metodi tarkastaa onko kyseistä aikaformaattileimaa ja järjestää sen
+     * uudestaan
+     * @return uudelleenjärjestetty aikaformaatti,
+     */
     private static String pvmHalkoja(String data) {
         if (data.contains("CCYYMMDD")) {
             String toReturn = data.replaceAll(".*?>", "");
-            return toReturn.substring(toReturn.length() - 2, toReturn.length() ) + "."
-                      + toReturn.substring(toReturn.length() - 4, toReturn.length() - 2) + "."
-                      + toReturn.substring(0, toReturn.length() - 4) ;
+            return toReturn.substring(toReturn.length() - 2, toReturn.length()) + "."
+                    + toReturn.substring(toReturn.length() - 4, toReturn.length() - 2) + "."
+                    + toReturn.substring(0, toReturn.length() - 4);
         } else {
             return data.replaceAll(".*?>", "");
         }
