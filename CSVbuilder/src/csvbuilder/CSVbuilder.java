@@ -43,20 +43,19 @@ public class CSVbuilder {
                     syote = "";
                 }
             }
-
-            KuittiGeneraattori kg;
-            try {
-                kg = new KuittiGeneraattori(syote);
-
-                System.out.println(kg.fvd());
-                System.out.println(kg.generoiKuitti().toCSV());
-                TiedostoIO.kirjoitaTiedostoon(kg.generoiKuitti().toCSV(), syote.replaceAll("xml", "csv"));
-            } catch (IOException ex) {
-                System.out.println("Tiedostoa ei löydy!");
-            }
-            scan.nextLine();
         }
 
+        KuittiGeneraattori kg;
+        try {
+            kg = new KuittiGeneraattori(syote);
+
+            System.out.println(kg.fvd());
+            System.out.println(kg.generoiKuitti().toCSV());
+            TiedostoIO.kirjoitaTiedostoon(kg.generoiKuitti().toCSV(), syote.replaceAll("xml", "csv"));
+        } catch (IOException ex) {
+            System.out.println("Tiedostoa ei löydy!");
+        }
+        scan.nextLine();
     }
 
 }
