@@ -1,0 +1,1 @@
+Vie muutettava tiedosto CSVBuilder.cmd sovelluksen p‰‰lle tai avaa .jar
